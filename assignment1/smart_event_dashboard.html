@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Event Dashboard</title>
+<link rel="stylesheet" href="smart_event_dashboard.css">
+</head>
+<body>
+
+<h1> Smart Event Dashboard</h1>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Add New Event</h2>
+        <form id="eventForm">
+            <label>Event Title:</label>
+            <input type="text" id="title" required>
+
+            <label>Event Date:</label>
+            <input type="date" id="date" required>
+
+            <label>Category:</label>
+            <select id="category">
+                <option>Conference</option>
+                <option>Workshop</option>
+                <option>Festival</option>
+                <option>Meeting</option>
+            </select>
+
+            <label>Description:</label>
+            <textarea id="description"></textarea>
+
+            <button type="submit">Add Event</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>My Events</h2>
+
+        <div class="button-row">
+            <button id="clearEvents">Clear All Events</button>
+            <button id="addSample">Add Sample Events</button>
+        </div>
+
+        <div id="eventsContainer">
+            <p>No events yet. Add your first event!</p>
+        </div>
+    </div>
+
+</div>
+
+<div class="dom-demo">
+    <h2>DOM Manipulation Demo</h2>
+    <div id="keyDisplay"><strong>You Pressed:</strong> None</div>
+</div>
+
+<script>
+    const eventForm = document.getElementById("eventForm");
+    const titleInput = document.getElementById("title");
+    const dateInput = document.getElementById("date");
+    const categoryInput = document.getElementById("category");
+    const descriptionInput = document.getElementById("description");
+
+    const eventsContainer = document.getElementById("eventsContainer");
+    const clearBtn = document.getElementById("clearEvents");
+    const sampleBtn = document.getElementById("addSample");
+    const keyDisplay = document.getElementById("keyDisplay");
+
+    let events = JSON.parse(localStorage.getItem("events")) || [];
+
+    function saveEvents() {
+        localStorage.setItem("events", JSON.stringify(events));
+    }
+
+    function renderEvents() {
+        eventsContainer.innerHTML = "";
+
+        if (events.length === 0) {
+            eventsContainer.innerHTML = "<p>No events yet. Add your first event!</p>";
+            return;
+        }
+
+        events.forEach((event, index) => {
+            const card = document.createElement("div");
+            card.classList.add("event-card");
+
+            card.innerHTML = `
+                <h3>${event.title}</h3>
+                <p><strong>Date:</strong> ${event.date}</p>
+                <p><strong>Category:</strong> ${event.category}</p>
+                <p>${event.description}</p>
+                <button onclick="deleteEvent(${index})">Delete</button>
+            `;
+
+            eventsContainer.appendChild(card);
+        });
+    }
+
+    eventForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const newEvent = {
+            title: titleInput.value,
+            date: dateInput.value,
+            category: categoryInput.value,
+            description: descriptionInput.value
+        };
+
+        events.push(newEvent);
+        saveEvents();
+        renderEvents();
+        eventForm.reset();
+    });
+
+    function deleteEvent(index) {
+        events.splice(index, 1);
+        saveEvents();
+        renderEvents();
+    }
+
+    clearBtn.addEventListener("click", function() {
+        events = [];
+        saveEvents();
+        renderEvents();
+    });
+
+    sampleBtn.addEventListener("click", function() {
+        const sampleEvents = [
+            {
+                title: "Tech Conference 2026",
+                date: "2026-02-10",
+                category: "Conference",
+                description: "Annual technology innovation conference."
+            },
+            {
+                title: "Music Festival",
+                date: "2026-03-15",
+                category: "Festival",
+                description: "Outdoor music festival."
+            },
+            {
+                title: "AI Workshop",
+                date: "2026-04-20",
+                category: "Workshop",
+                description: "Hands-on AI and ML workshop."
+            }
+        ];
+
+        events = events.concat(sampleEvents);
+        saveEvents();
+        renderEvents();
+    });
+
+    document.addEventListener("keydown", function(event) {
+        keyDisplay.innerHTML = "<strong>You Pressed:</strong> " + event.key;
+    });
+
+    renderEvents();
+</script>
+
+</body>
+</html>
